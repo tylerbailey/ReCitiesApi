@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="../ReCitiesApi.Infrastructure/ReCitiesApi.Infrastructure.csproj" />
+  <Project Path="../ReCitiesApi.Models/ReCitiesApi.Models.csproj" />
+  <Project Path="ReCitiesApi.Server.csproj" />
+</Solution>
