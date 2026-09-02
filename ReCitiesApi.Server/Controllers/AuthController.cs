@@ -29,19 +29,25 @@ public class AuthController(UserManager<ApplicationUser> users, ITokenService to
     public async Task<IActionResult> Register(RegisterRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Email))
-            return BadRequest(new { message = "Email is required." });
+            return BadRequest(new { message = "Email error", errors = new string[] { "Email is required." } });
 
         if (string.IsNullOrWhiteSpace(request.Password))
-            return BadRequest(new { message = "Password is required." });
+            return BadRequest(new { message = "Password error", errors = new string[] { "Password is required." } });
 
         if (string.IsNullOrWhiteSpace(request.UserName))
-            return BadRequest(new { message = "User name is required." });
+            return BadRequest(new { message = "User name error", errors = new string[] { "User name is required." } });
+
+        if( _users.Users.Where(u => u.DisplayName != null && u.DisplayName.Equals(request.UserName)).Any())
+        {
+            return BadRequest(new { message = "User name error", errors = new string[] { "User name is already taken." } });
+        }
 
         var user = new ApplicationUser
         {
             UserName = request.Email.Trim(),
             Email = request.Email.Trim(),
-            DisplayName = request.UserName.Trim()
+            DisplayName = request.UserName.Trim(),
+            IsApproved = true            
         };
 
         var result = await _users.CreateAsync(user, request.Password);
@@ -62,7 +68,7 @@ public class AuthController(UserManager<ApplicationUser> users, ITokenService to
                 errors = roleResult.Errors.Select(e => e.Description).ToArray()
             });
 
-        return Ok(new { message = "Account created. Your account is awaiting approval." });
+        return Ok(new { message = "Account created!" });
     }
 
     /// <summary>Authenticates a user and sets the auth token cookie.</summary>
