@@ -102,6 +102,7 @@ builder.Services
 // -------------------- SERVICES --------------------
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<INeighborhoodService, NeighborhoodService>();
+builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddAuthorization();
 builder.Services.Configure<JwtOptions>(configSection);
 // -------------------- CORS --------------------
