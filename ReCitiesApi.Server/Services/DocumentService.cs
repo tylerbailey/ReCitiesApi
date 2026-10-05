@@ -10,9 +10,14 @@ namespace ReCitiesApi.Server.Services
         public async Task<FolderDto> GetUserStructureAsync(string userId)
         {
             await using var context = await _dbContextFactory.CreateDbContextAsync();
-            var root = await context.Folders.Where(f => f.UserId == userId && f.ParentId == null).FirstOrDefaultAsync() ?? new Folder();
+            var root = await context.Folders
+             .Where(f => f.UserId == userId && f.ParentId == null)
+             .Include(f => f.Pages)
+             .Include(f => f.Folders)
+                 .ThenInclude(sub => sub.Pages)
+             .FirstOrDefaultAsync() ?? new Folder();
             var folderDto = BuildFolderDtoAsync(root);
-            return new FolderDto();
+            return folderDto;
         }
 
         public async Task CreateFolderAsync(string userId, FolderDto folder)
@@ -20,6 +25,7 @@ namespace ReCitiesApi.Server.Services
             await using var context = await _dbContextFactory.CreateDbContextAsync();
             var newFolder = new Folder
             {
+                Id = folder.Id,
                 Name = folder.Name,
                 UserId = userId,
                 ParentId = folder.ParentId
@@ -41,6 +47,7 @@ namespace ReCitiesApi.Server.Services
             await using var context = await _dbContextFactory.CreateDbContextAsync();
             var newPage = new Page
             {
+                Id = page.Id,
                 UserId = userId,
                 Title = page.Title,
                 Content = page.Content,
@@ -60,19 +67,23 @@ namespace ReCitiesApi.Server.Services
                 Id = page.Id,
                 Title = page.Title,
                 Content = page.Content,
-                FolderId = page.FolderId
+                FolderId = page.FolderId,
+                UserId = page.UserId
             };
         }
 
-
         private FolderDto BuildFolderDtoAsync(Folder root) => new()
         {
+            Id = root.Id,
             Name = root.Name,
             SubFolders = [.. root.Folders.Select(BuildFolderDtoAsync)],
             Pages = [.. root.Pages.Select(p => new PageDto
             {
+                Id = p.Id,
                 Title = p.Title,
-                Content = p.Content
+                Content = p.Content,
+                FolderId = p.FolderId,
+                UserId = p.UserId
             })]
         };
     }

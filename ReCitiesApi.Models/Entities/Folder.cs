@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace ReCitiesApi.Models.Entities
@@ -8,13 +9,16 @@ namespace ReCitiesApi.Models.Entities
     {
         public string UserId { get; set; } = string.Empty;
 
+        [ForeignKey("Parent")]
         public int? ParentId { get; set; }
 
         public string Name { get; set; } = string.Empty;
 
-        public ICollection<Page> Pages { get; set; } = [];
+        public virtual Folder? Parent { get; set; }
 
-        public ICollection<Folder> Folders { get; set; } = [];
+        public virtual ICollection<Page> Pages { get; set; } = [];
+
+        public virtual ICollection<Folder> Folders { get; set; } = [];
     
     }
 }
